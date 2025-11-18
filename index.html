@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Medical Triage Assistant</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #e8f0f7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .chat-wrapper {
+        width: 100%;
+        max-width: 420px;
+        height: 95vh;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .header {
+        background: #0a7cff;
+        padding: 18px;
+        text-align: center;
+        color: white;
+        font-size: 20px;
+        font-weight: 600;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+
+    .chat-box {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f4f8fc;
+    }
+
+    .bubble {
+        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        margin-bottom: 14px;
+        font-size: 15px;
+        line-height: 1.4;
+        animation: fadeIn 0.2s ease-in;
+    }
+
+    .bot {
+        background: #ffffff;
+        color: #333;
+        border: 1px solid #d4e1f1;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .user {
+        background: #0a7cff;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-area {
+        padding: 12px;
+        background: #ffffff;
+        border-top: 1px solid #d7e3f0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .input-area input {
+        flex-grow: 1;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid #b8cce0;
+        font-size: 15px;
+        outline: none;
+    }
+
+    .send-btn {
+        background: #0a7cff;
+        color: white;
+        border: none;
+        padding: 0 18px;
+        border-radius: 14px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .send-btn:hover {
+        background: #005fcc;
+    }
+
+    .loading {
+        font-style: italic;
+        color: #555;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="chat-wrapper">
+    <div class="header">🩺 Medical Triage Assistant</div>
+
+    <div id="chatBox" class="chat-box"></div>
+
+    <div class="input-area">
+        <input id="userInput" placeholder="Describe your symptoms..." />
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+const chatBox = document.getElementById("chatBox");
+const input = document.getElementById("userInput");
+
+function addMessage(text, sender) {
+    let div = document.createElement("div");
+    div.classList.add("bubble", sender);
+    div.innerText = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    // Show typing indicator
+    let loading = document.createElement("div");
+    loading.classList.add("bubble", "bot", "loading");
+    loading.innerText = "Typing...";
+    chatBox.appendChild(loading);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Call backend
+    const form = new FormData();
+    form.append("prompt", message);
+
+    const res = await fetch("/llm", { method: "POST", body: form });
+    const data = await res.text();
+
+    loading.remove();
+    addMessage(data, "bot");
+}
+</script>
+
+</body>
+</html>
