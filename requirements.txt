@@ -1,6 +1,6 @@
 groq
 fastapi
 uvicorn
-dotenv
+python-dotenv
 python-multipart
 gTTS==2.5.1
