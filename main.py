@@ -22,7 +22,7 @@ conversation_list=[]
 def store(role,content):
     conversation_list.append({"role":role,"content":content})
     if len(conversation_list)>=20:
-        conversation_list.pop(0)
+        conversation_list.pop(0)    
 
 
 
